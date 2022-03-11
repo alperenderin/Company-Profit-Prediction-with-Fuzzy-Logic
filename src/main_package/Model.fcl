@@ -1,0 +1,274 @@
+FUNCTION_BLOCK Model
+VAR_INPUT
+	employee_count: REAL;
+	market_size: REAL;
+	product_count: REAL;
+END_VAR
+
+VAR_OUTPUT
+	profit: REAL;
+END_VAR
+
+FUZZIFY employee_count
+	TERM VERY_LOW := trian 1 1 500;
+	TERM LOW := trian 250 500 2000; 
+	TERM BALANCE := trape 500 2000 5000 15000;
+	TERM HIGH := trape 5000 15000 20000 40000;
+	TERM VERY_HIGH := trape 20000 40000 60000 60000;
+END_FUZZIFY
+
+FUZZIFY market_size
+	TERM VERY_LOW := trian 30 30 40;
+	TERM LOW := trape 30 40 50 75;
+	TERM BALANCE := trape 50 100 150 200;
+	TERM HIGH := trape 150 200 300 500;
+	TERM VERY_HIGH := trape 300 500 800 800;
+END_FUZZIFY
+
+FUZZIFY product_count
+	TERM VERY_LOW := trian 10 10 7000;
+	TERM LOW := trape 2000 7000 10000 20000;
+	TERM BALANCE := trape 10000 30000 50000 60000;
+	TERM HIGH := trape 50000 65000 75000 100000;
+	TERM VERY_HIGH := trape 75000 100000 125000 125000;
+END_FUZZIFY
+	
+DEFUZZIFY profit
+	METHOD : COG;
+	DEFAULT := 0;
+	
+	TERM POOR_STAR := trian -2000 -2000 -1000;
+	
+	TERM HIGH_POOR := trian -1500 -1000 -750;
+	TERM POOR := trape  -1000 -750 -500 -350;
+	
+	TERM VERY_LOW := trape -400 -350 -300 -200;
+	TERM LOW := trian -250 -200 -150;
+	TERM LOW_BALANCE := trape -200 -150 -100 -50;
+	
+	TERM BALANCE_MINUS :=  trape -50 -25 -10 -5; 
+	TERM BALANCE := trape -10 -5 5 10;
+	TERM BALANCE_PLUS := trape 5 10 25 50;
+	
+	TERM HIGH_BALANCE := trape 50 100 150 200;
+	TERM HIGH := trian 150 200 250;
+	TERM VERY_HIGH :=  trape 200 300 350 400;
+	
+	TERM PEAK := trape 350 500 750 1000;
+	TERM HIGH_PEAK := trian 750 1000 1500;
+	
+	TERM PEAK_STAR := trian 1000 2000 2000;
+END_DEFUZZIFY
+
+RULEBLOCK rule_block_1
+	AND : MIN;
+	ACT : MIN;
+	ACCU : MAX;
+	
+	//MARKET SIZE VERY_LOW
+	RULE 1:   IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS VERY_LOW THEN profit IS HIGH_BALANCE;			//////////////////////////////////////MAX PROFIT/////////////////////////////////////////////
+	RULE 2:   IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 2.1: IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 3:   IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS BALANCE_PLUS;
+	RULE 4.1: IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS BALANCE WITH 0.5;
+	RULE 4.1: IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 5:   IF market_size IS VERY_LOW  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS BALANCE;
+	
+	RULE 6:   IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS BALANCE_PLUS;
+	RULE 7:   IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 7.1: IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS LOW THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 8:   IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS BALANCE THEN profit IS BALANCE;
+	RULE 9:   IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 9:   IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS BALANCE WITH 0.5;	
+	RULE 10:  IF market_size IS VERY_LOW  AND product_count IS LOW AND employee_count IS VERY_HIGH THEN profit IS BALANCE_MINUS;
+	
+	RULE 11:  IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS BALANCE; 
+	RULE 12:  IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE WITH 0.5;
+	RULE 12.1:IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 13:  IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS BALANCE_MINUS;
+	RULE 14:  IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 14.1:IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 15:  IF market_size IS VERY_LOW  AND product_count IS BALANCE AND employee_count IS VERY_HIGH THEN profit IS LOW_BALANCE;
+	
+	RULE 16:  IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS BALANCE_MINUS;
+	RULE 17:  IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 17.1:IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 18:  IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS LOW_BALANCE;
+	RULE 18.1:IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 19:  IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS LOW WITH 0.5;
+	RULE 19.1:IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS LOW;
+	RULE 20:  IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS LOW WITH 0.5;
+	RULE 20.1:IF market_size IS VERY_LOW  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS VERY_LOW WITH 0.5;
+	
+	RULE 21:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS LOW_BALANCE;
+	RULE 21:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 21.1:IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS LOW WITH 0.5;
+	RULE 22:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS LOW;
+	RULE 23:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS LOW WITH 0.5;
+	RULE 23.1:IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS VERY_LOW WITH 0.5;
+	RULE 24:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS VERY_LOW;
+	RULE 25:  IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS VERY_LOW WITH 0.5;
+	RULE 25.1:IF market_size IS VERY_LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_HIGH THEN profit IS POOR WITH 0.5; //////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	
+	//MARKET SIZE LOW
+	RULE 26:  IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS VERY_LOW THEN profit IS BALANCE;			//////////////////////////////////////LOKAL MIN PROFIT/////////////////////////////////////////////
+	RULE 27:  IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS BALANCE_PLUS WITH 0.2;
+	RULE 27.1:IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS BALANCE WITH 0.8;//
+	RULE 28:  IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS BALANCE  WITH 0.5;
+	RULE 28.1:IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS BALANCE_MINUS  WITH 0.5;
+	RULE 29:  IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS BALANCE_MINUS;
+	RULE 30:  IF market_size IS LOW  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS LOW_BALANCE;
+	
+	RULE 31: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS BALANCE  WITH 0.2;
+	RULE 31.1: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS BALANCE_PLUS  WITH 0.8;
+	RULE 32: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS LOW THEN profit IS BALANCE_PLUS;//           //////////////////////////////////////MAX PROFIT/////////////////////////////////////////////
+	RULE 33: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS BALANCE THEN profit IS BALANCE;
+	RULE 34: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS BALANCE_MINUS;
+	RULE 35: IF market_size IS LOW  AND product_count IS LOW AND employee_count IS VERY_HIGH THEN profit IS LOW_BALANCE;
+	
+	RULE 36:  IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 36.1:IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS BALANCE WITH 0.5;
+	RULE 37:  IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE;//
+	RULE 38:  IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS BALANCE_MINUS;
+	RULE 39:  IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS LOW;
+	RULE 40:  IF market_size IS LOW  AND product_count IS BALANCE AND employee_count IS VERY_HIGH THEN profit IS VERY_LOW;
+	
+	RULE 41:  IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS LOW_BALANCE;
+	RULE 42:  IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 42.1:IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS BALANCE_MINUS WITH 0.5;//
+	RULE 43:  IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS LOW;
+	RULE 44:  IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS LOW WITH 0.8;
+	RULE 44.1:IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS POOR WITH 0.2;
+	RULE 45:  IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS LOW WITH 0.5;
+	RULE 45.1:IF market_size IS LOW  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS POOR WITH 0.5;
+	
+	RULE 46: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS LOW WITH 0.5;
+	RULE 46.1: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS VERY_LOW WITH 0.5;
+	RULE 47: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS LOW_BALANCE;
+	RULE 48: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS VERY_LOW WITH 0.5;//
+	RULE 48.1:IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS POOR WITH 0.5;
+	RULE 49: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS HIGH_POOR;
+	RULE 49: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS HIGH_POOR WITH 0.5;
+	RULE 50: IF market_size IS LOW  AND product_count IS VERY_HIGH AND employee_count IS VERY_HIGH THEN profit IS POOR_STAR WITH 0.5;         //////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	
+	//MARKET SIZE BALANCE
+	RULE 51:  IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS VERY_LOW THEN profit IS VERY_LOW;				//////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	RULE 52:  IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS VERY_LOW WITH 0.5;
+	RULE 52.1:IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS LOW WITH 0.5;
+	RULE 53:  IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS LOW;///BURADAKI 5'LI GRUP ICERISINDE BU SATIRA KADAR ARTACAK, ANCAK BUNDAN SONRA AZALACAK, CUNKU ISCI SAYISI ARTIK DOZU ASTI(BU BESLI OZELINDE)
+	RULE 54:  IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS LOW WITH 0.5;
+	RULE 54.1:IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS VERY_LOW;
+	RULE 55:  IF market_size IS BALANCE  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS VERY_LOW;
+	
+	RULE 56:  IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS BALANCE;
+	RULE 57:  IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS LOW THEN profit IS BALANCE WITH 0.5;
+	RULE 57.1:IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS LOW THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 58:  IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS BALANCE THEN profit IS BALANCE_PLUS;///
+	RULE 59:  IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS BALANCE WITH 0.5;
+	RULE 59.1:IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 60:  IF market_size IS BALANCE  AND product_count IS LOW AND employee_count IS VERY_HIGH THEN profit IS LOW_BALANCE;
+	
+	RULE 61:  IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 61.1:IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS HIGH WITH 0.5;
+	RULE 62:  IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS HIGH;
+	RULE 63:  IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS VERY_HIGH;  ///           //////////////////////////////////////MAX PROFIT/////////////////////////////////////////////
+	RULE 64:  IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS VERY_HIGH WITH 0.5;
+	RULE 64.1:IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS HIGH WITH 0.5;
+	RULE 65:  IF market_size IS BALANCE  AND product_count IS BALANCE AND employee_count IS VERY_HIGH THEN profit IS HIGH;
+	
+	RULE 66:  IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS HIGH WITH 0.5;
+	RULE 66.1:IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 67:  IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS HIGH_BALANCE;
+	RULE 68:  IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 68.1: IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS BALANCE_PLUS WITH 0.5;//
+	RULE 69:  IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS BALANCE;
+	RULE 70:  IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS BALANCE WITH 0.5;
+	RULE 70.1: IF market_size IS BALANCE  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS BALANCE_MINUS WITH 0.5;
+	
+	RULE 71: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS LOW_BALANCE;
+	RULE 72: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 72: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS LOW WITH 0.5;
+	RULE 73: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS LOW;
+	RULE 74: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS LOW WITH 0.5;
+	RULE 74: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS VERY_LOW WITH 0.5;
+	RULE 75: IF market_size IS BALANCE  AND product_count IS VERY_HIGH AND employee_count IS VERY_HIGH THEN profit IS VERY_LOW;			 //////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	
+	//MARKET SIZE HIGH
+	RULE 76:  IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS VERY_LOW THEN profit IS HIGH_POOR;				//////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	RULE 77:  IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS POOR;
+	RULE 78:  IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS POOR WITH 0.5;
+	RULE 78.1:IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS VERY_LOW WITH 0.5;
+	RULE 79:  IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS LOW;//
+	RULE 80:  IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS VERY_LOW WITH 0.5;
+	RULE 80.1:IF market_size IS HIGH  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS POOR WITH 0.5;
+	
+	RULE 81:  IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS VERY_LOW;
+	RULE 82:  IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS LOW THEN profit IS LOW_BALANCE  WITH 0.5;
+	RULE 82.1:IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS LOW THEN profit IS LOW WITH 0.5;
+	RULE 83:  IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS BALANCE THEN profit IS LOW_BALANCE;
+	RULE 84:  IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS LOW_BALANCE;//
+	RULE 85:  IF market_size IS HIGH  AND product_count IS LOW AND employee_count IS VERY_HIGH THEN profit IS LOW;
+	
+	RULE 86: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS BALANCE_MINUS;
+	RULE 87: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE;
+	RULE 88: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS BALANCE WITH 0.5;
+	RULE 88: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 89: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS BALANCE_PLUS;//
+	RULE 90: IF market_size IS HIGH  AND product_count IS BALANCE AND employee_count IS VERY_HIGH THEN profit IS BALANCE;
+	
+	RULE 91: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS HIGH_BALANCE;
+	RULE 92: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 92: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS VERY_HIGH WITH 0.5;
+	RULE 93: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS VERY_HIGH;
+	RULE 94: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS PEAK;//							//////////////////////////////////////MAX PROFIT/////////////////////////////////////////////
+	RULE 95: IF market_size IS HIGH  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS VERY_HIGH;
+	
+	RULE 96: IF market_size IS HIGH  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS HIGH;
+	RULE 97: IF market_size IS HIGH  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS HIGH_BALANCE;
+	RULE 98: IF market_size IS HIGH  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS BALANCE_PLUS;
+	RULE 99: IF market_size IS HIGH  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS BALANCE;//
+	RULE 100:IF market_size IS HIGH  AND product_count IS VERY_HIGH AND employee_count IS VERY_HIGH THEN profit IS BALANCE_MINUS;			//////////////////////////////////////LOKAL MIN PROFIT/////////////////////////////////////////////
+	
+	//MARKET SIZE VERY HIGH
+	RULE 101:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS VERY_LOW THEN profit IS POOR_STAR; 			//////////////////////////////////////MIN PROFIT/////////////////////////////////////////////
+	RULE 102:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS POOR_STAR WITH 0.5;
+	RULE 102.1:IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS LOW THEN profit IS HIGH_POOR WITH 0.5;
+	RULE 103:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS BALANCE THEN profit IS HIGH_POOR;
+	RULE 104:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS HIGH_POOR WITH 0.5;
+	RULE 104:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS HIGH THEN profit IS POOR WITH 0.5;
+	RULE 105:  IF market_size IS VERY_HIGH  AND product_count IS VERY_LOW AND employee_count IS VERY_HIGH THEN profit IS POOR;//
+	
+	RULE 106:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS VERY_LOW THEN profit IS VERY_LOW;
+	RULE 107:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS LOW THEN profit IS VERY_LOW WITH 0.5;
+	RULE 107.1:IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS LOW THEN profit IS LOW WITH 0.5;
+	RULE 108:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS BALANCE THEN profit IS LOW;
+	RULE 109:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS LOW WITH 0.5;
+	RULE 109:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS HIGH THEN profit IS LOW_BALANCE WITH 0.5;
+	RULE 110:  IF market_size IS VERY_HIGH  AND product_count IS LOW AND employee_count IS VERY_HIGH THEN profit IS LOW_BALANCE;//
+	
+	RULE 111:  IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS VERY_LOW THEN profit IS BALANCE_MINUS;
+	RULE 112:  IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE_MINUS WITH 0.5;
+	RULE 112.1:IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS LOW THEN profit IS BALANCE WITH 0.5;
+	RULE 113:  IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS BALANCE THEN profit IS BALANCE;
+	RULE 114:  IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS BALANCE WITH 0.5;
+	RULE 114.1:IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS HIGH THEN profit IS BALANCE_PLUS WITH 0.5;
+	RULE 115:  IF market_size IS VERY_HIGH  AND product_count IS BALANCE AND employee_count IS VERY_HIGH THEN profit IS BALANCE_PLUS;//
+	
+	RULE 116:  IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS VERY_LOW THEN profit IS HIGH_BALANCE;
+	RULE 117:  IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS HIGH_BALANCE WITH 0.5;
+	RULE 117.1:IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS LOW THEN profit IS HIGH WITH 0.5;
+	RULE 118:  IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS BALANCE THEN profit IS HIGH;
+	RULE 119:  IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS HIGH WITH 0.5;
+	RULE 119.1:IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS HIGH THEN profit IS VERY_HIGH WITH 0.5;
+	RULE 120:  IF market_size IS VERY_HIGH  AND product_count IS HIGH AND employee_count IS VERY_HIGH THEN profit IS VERY_HIGH;//
+	
+	RULE 121:  IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS VERY_LOW THEN profit IS PEAK;
+	RULE 122:  IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS PEAK WITH 0.5;
+	RULE 122.1:IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS LOW THEN profit IS HIGH_PEAK WITH 0.5;
+	RULE 123:  IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS BALANCE THEN profit IS HIGH_PEAK;
+	RULE 124:  IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS HIGH_PEAK WITH 0.5;
+	RULE 124.1:IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS HIGH THEN profit IS PEAK_STAR WITH 0.5;
+	RULE 125:  IF market_size IS VERY_HIGH  AND product_count IS VERY_HIGH AND employee_count IS VERY_HIGH THEN profit IS PEAK_STAR;//		 //////////////////////////////////////MAX PROFIT/////////////////////////////////////////////
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
